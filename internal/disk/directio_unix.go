@@ -24,6 +24,7 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/minio/minio/internal/sio"
 	"github.com/ncw/directio"
 	"golang.org/x/sys/unix"
 )
@@ -32,12 +33,13 @@ import (
 const ODirectPlatform = true
 
 // OpenFileDirectIO - bypass kernel cache.
-func OpenFileDirectIO(filePath string, flag int, perm os.FileMode) (*os.File, error) {
-	return directio.OpenFile(filePath, flag, perm)
+func OpenFileDirectIO(filePath string, flag int, perm os.FileMode) (*sio.File, error) {
+	// return directio.OpenFile(filePath, flag, perm)
+	return sio.OpenFile(filePath, flag|syscall.O_DIRECT, perm)
 }
 
 // DisableDirectIO - disables directio mode.
-func DisableDirectIO(f *os.File) error {
+func DisableDirectIO(f *sio.File) error {
 	fd := f.Fd()
 	flag, err := unix.FcntlInt(fd, unix.F_GETFL, 0)
 	if err != nil {
