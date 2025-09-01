@@ -45,6 +45,7 @@ import (
 	"github.com/minio/minio/internal/bucket/lifecycle"
 	"github.com/minio/minio/internal/cachevalue"
 	"github.com/minio/minio/internal/config/storageclass"
+	"github.com/minio/minio/internal/sio"
 
 	"github.com/minio/minio/internal/disk"
 	xioutil "github.com/minio/minio/internal/ioutil"
@@ -1959,7 +1960,7 @@ func (s *xlStorage) ReadFile(ctx context.Context, volume string, path string, of
 	return int64(len(buffer)), nil
 }
 
-func (s *xlStorage) openFileDirect(path string, mode int) (f *os.File, err error) {
+func (s *xlStorage) openFileDirect(path string, mode int) (f *sio.File, err error) {
 	w, err := OpenFileDirectIO(path, mode, 0o666)
 	if err != nil {
 		switch {
@@ -1979,11 +1980,11 @@ func (s *xlStorage) openFileDirect(path string, mode int) (f *os.File, err error
 	return w, nil
 }
 
-func (s *xlStorage) openFileSync(filePath string, mode int, skipParent string) (f *os.File, err error) {
+func (s *xlStorage) openFileSync(filePath string, mode int, skipParent string) (f *sio.File, err error) {
 	return s.openFile(filePath, mode|writeMode, skipParent)
 }
 
-func (s *xlStorage) openFile(filePath string, mode int, skipParent string) (f *os.File, err error) {
+func (s *xlStorage) openFile(filePath string, mode int, skipParent string) (f *sio.File, err error) {
 	if skipParent == "" {
 		skipParent = s.drivePath
 	}
@@ -2153,7 +2154,7 @@ func (s *xlStorage) writeAllDirect(ctx context.Context, filePath string, fileSiz
 
 	odirectEnabled := globalAPIConfig.odirectEnabled() && s.oDirect && fileSize > 0
 
-	var w *os.File
+	var w *sio.File
 	if odirectEnabled {
 		w, err = OpenFileDirectIO(filePath, flags, 0o666)
 	} else {
@@ -2254,7 +2255,7 @@ func (s *xlStorage) writeAllMeta(ctx context.Context, volume string, path string
 func (s *xlStorage) writeAllInternal(ctx context.Context, filePath string, b []byte, sync bool, skipParent string) (err error) {
 	flags := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 
-	var w *os.File
+	var w *sio.File
 	if sync {
 		// Perform DirectIO along with fdatasync for larger xl.meta, mostly when
 		// xl.meta has "inlined data" we prefer writing O_DIRECT and then doing
@@ -2346,7 +2347,7 @@ func (s *xlStorage) AppendFile(ctx context.Context, volume string, path string, 
 		return err
 	}
 
-	var w *os.File
+	var w *sio.File
 	// Create file if not found. Not doing O_DIRECT here to avoid the code that does buffer aligned writes.
 	// AppendFile() is only used by healing code to heal objects written in old format.
 	w, err = s.openFileSync(filePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, volumeDir)

@@ -24,6 +24,7 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/minio/minio/internal/sio"
 	"golang.org/x/sys/unix"
 )
 
@@ -37,7 +38,7 @@ import (
 //
 // The aim of fdatasync() is to reduce disk activity for applications that
 // do not require all metadata to be synchronized with the disk.
-func Fdatasync(f *os.File) error {
+func Fdatasync(f *sio.File) error {
 	return syscall.Fdatasync(int(f.Fd()))
 }
 

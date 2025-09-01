@@ -26,6 +26,7 @@ import (
 	"github.com/minio/madmin-go/v3"
 	"github.com/minio/minio/internal/disk"
 	ioutilx "github.com/minio/minio/internal/ioutil"
+	"github.com/minio/minio/internal/sio"
 )
 
 //go:generate stringer -type=osMetric -trimprefix=osMetric $GOFILE
@@ -144,14 +145,14 @@ func Rename(src, dst string) (err error) {
 }
 
 // OpenFile captures time taken to call os.OpenFile
-func OpenFile(name string, flag int, perm os.FileMode) (f *os.File, err error) {
+func OpenFile(name string, flag int, perm os.FileMode) (f *sio.File, err error) {
 	switch flag & writeMode {
 	case writeMode:
 		defer updateOSMetrics(osMetricOpenFileW, name)(err)
 	default:
 		defer updateOSMetrics(osMetricOpenFileR, name)(err)
 	}
-	return os.OpenFile(name, flag, perm)
+	return sio.OpenFile(name, flag, perm)
 }
 
 // Access captures time taken to call syscall.Access()
@@ -163,13 +164,13 @@ func Access(name string) (err error) {
 }
 
 // Open captures time taken to call os.Open
-func Open(name string) (f *os.File, err error) {
+func Open(name string) (f *sio.File, err error) {
 	defer updateOSMetrics(osMetricOpen, name)(err)
-	return os.Open(name)
+	return sio.OpenFile(name, os.O_RDONLY, 0)
 }
 
 // OpenFileDirectIO captures time taken to call disk.OpenFileDirectIO
-func OpenFileDirectIO(name string, flag int, perm os.FileMode) (f *os.File, err error) {
+func OpenFileDirectIO(name string, flag int, perm os.FileMode) (f *sio.File, err error) {
 	defer updateOSMetrics(osMetricOpenFileDirectIO, name)(err)
 	return disk.OpenFileDirectIO(name, flag, perm)
 }
@@ -193,13 +194,13 @@ func Stat(name string) (info os.FileInfo, err error) {
 }
 
 // Create captures time taken to call os.Create
-func Create(name string) (f *os.File, err error) {
+func Create(name string) (f *sio.File, err error) {
 	defer updateOSMetrics(osMetricCreate, name)(err)
-	return os.Create(name)
+	return sio.Create(name)
 }
 
 // Fdatasync captures time taken to call Fdatasync
-func Fdatasync(f *os.File) (err error) {
+func Fdatasync(f *sio.File) (err error) {
 	fn := ""
 	if f != nil {
 		fn = f.Name()
