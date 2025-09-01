@@ -22,6 +22,7 @@ package disk
 import (
 	"os"
 
+	"github.com/minio/minio/internal/sio"
 	"github.com/ncw/directio"
 	"golang.org/x/sys/unix"
 )
@@ -30,8 +31,8 @@ import (
 const ODirectPlatform = true
 
 // OpenFileDirectIO - bypass kernel cache.
-func OpenFileDirectIO(filePath string, flag int, perm os.FileMode) (*os.File, error) {
-	return directio.OpenFile(filePath, flag, perm)
+func OpenFileDirectIO(filePath string, flag int, perm os.FileMode) (*sio.File, error) {
+	return sio.OpenFile(filePath, flag, perm)
 }
 
 // DisableDirectIO - disables directio mode.
