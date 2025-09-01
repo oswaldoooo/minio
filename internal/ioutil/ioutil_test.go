@@ -26,6 +26,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/minio/minio/internal/sio"
 )
 
 type sleepWriter struct {
@@ -193,7 +195,7 @@ func TestSameFile(t *testing.T) {
 }
 
 func TestCopyAligned(t *testing.T) {
-	f, err := os.CreateTemp(t.TempDir(), "")
+	f, err := sio.CreateTemp(t.TempDir(), "")
 	if err != nil {
 		t.Errorf("Error creating tmp file: %v", err)
 	}

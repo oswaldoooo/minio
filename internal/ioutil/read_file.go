@@ -20,18 +20,18 @@ package ioutil
 import (
 	"io"
 	"io/fs"
-	"os"
 
 	"github.com/minio/minio/internal/disk"
+	"github.com/minio/minio/internal/sio"
 )
 
 var (
 	// OpenFileDirectIO allows overriding default function.
 	OpenFileDirectIO = disk.OpenFileDirectIO
 	// OsOpen allows overriding default function.
-	OsOpen = os.Open
+	OsOpen = sio.Open
 	// OsOpenFile allows overriding default function.
-	OsOpenFile = os.OpenFile
+	OsOpenFile = sio.OpenFile
 )
 
 // ReadFileWithFileInfo reads the named file and returns the contents.

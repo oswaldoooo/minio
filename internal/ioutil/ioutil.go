@@ -30,6 +30,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/minio/minio/internal/bpool"
 	"github.com/minio/minio/internal/disk"
+	"github.com/minio/minio/internal/sio"
 )
 
 // Block sizes constant.
@@ -344,7 +345,7 @@ const DirectioAlignSize = 4096
 // used with DIRECT I/O based file descriptor and it is expected that
 // input writer *os.File not a generic io.Writer. Make sure to have
 // the file opened for writes with syscall.O_DIRECT flag.
-func CopyAligned(w io.Writer, r io.Reader, alignedBuf []byte, totalSize int64, file *os.File) (int64, error) {
+func CopyAligned(w io.Writer, r io.Reader, alignedBuf []byte, totalSize int64, file *sio.File) (int64, error) {
 	if totalSize == 0 {
 		return 0, nil
 	}

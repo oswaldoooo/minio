@@ -20,13 +20,15 @@ package config
 import (
 	"os"
 	"testing"
+
+	"github.com/minio/minio/internal/sio"
 )
 
 func createTempFile(t testing.TB, prefix, content string) (tempFile string, err error) {
 	t.Helper()
-	var tmpfile *os.File
+	var tmpfile *sio.File
 
-	if tmpfile, err = os.CreateTemp(t.TempDir(), prefix); err != nil {
+	if tmpfile, err = sio.CreateTemp(t.TempDir(), prefix); err != nil {
 		return tempFile, err
 	}
 

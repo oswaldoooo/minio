@@ -50,7 +50,7 @@ lint-fix: getdeps ## runs golangci-lint suite of linters with automatic fixes
 check: test
 test: verifiers build ## builds minio, runs linters, tests
 	@echo "Running unit tests"
-	@MINIO_API_REQUESTS_MAX=10000 CGO_ENABLED=0 go test -v -tags kqueue,dev ./...
+	@MINIO_API_REQUESTS_MAX=10000 CGO_ENABLED=1 go test -v -tags kqueue,dev ./...
 
 test-root-disable: install-race
 	@echo "Running minio root lockdown tests"
@@ -93,7 +93,7 @@ test-race: verifiers build ## builds minio, runs linters, tests (race)
 
 test-iam: install-race ## verify IAM (external IDP, etcd backends)
 	@echo "Running tests for IAM (external IDP, etcd backends)"
-	@MINIO_API_REQUESTS_MAX=10000 CGO_ENABLED=0 go test -timeout 15m -tags kqueue,dev -v -run TestIAM* ./cmd
+	@MINIO_API_REQUESTS_MAX=10000 CGO_ENABLED=1 go test -timeout 15m -tags kqueue,dev -v -run TestIAM* ./cmd
 	@echo "Running tests for IAM (external IDP, etcd backends) with -race"
 	@MINIO_API_REQUESTS_MAX=10000 GORACE=history_size=7 CGO_ENABLED=1 go test -timeout 15m -race -tags kqueue,dev -v -run TestIAM* ./cmd
 
@@ -180,7 +180,7 @@ build-debugging:
 
 build: checks build-debugging ## builds minio to $(PWD)
 	@echo "Building minio binary to './minio'"
-	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -tags kqueue -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/minio 1>/dev/null
+	@CGO_ENABLED=1 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -tags kqueue -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/minio 1>/dev/null
 
 hotfix-vars:
 	$(eval LDFLAGS := $(shell MINIO_RELEASE="RELEASE" MINIO_HOTFIX="hotfix.$(shell git rev-parse --short HEAD)" go run buildscripts/gen-ldflags.go $(shell git describe --tags --abbrev=0 | \
